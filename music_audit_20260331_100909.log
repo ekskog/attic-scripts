@@ -1,0 +1,45 @@
+2026-03-31 10:09:09,944 | INFO | TAGGED: Strong Man [xnvTedg6iJA].mp3 -> (Artist: 16 horsepower, Title: strong man)
+2026-03-31 10:09:09,946 | INFO | RENAMED: Strong Man [xnvTedg6iJA].mp3 to 01-14-strong_man.mp3
+2026-03-31 10:09:09,949 | INFO | TAGGED: Black Soul Choir [mci51ylr3oM].mp3 -> (Artist: 16 horsepower, Title: haw)
+2026-03-31 10:09:09,950 | INFO | RENAMED: Black Soul Choir [mci51ylr3oM].mp3 to 01-03-haw.mp3
+2026-03-31 10:09:09,953 | INFO | TAGGED: I Seen What I Saw [EHN6javenuw].mp3 -> (Artist: 16 horsepower, Title: black bush)
+2026-03-31 10:09:09,953 | INFO | RENAMED: I Seen What I Saw [EHN6javenuw].mp3 to 01-08-black_bush.mp3
+2026-03-31 10:09:09,956 | INFO | TAGGED: Horse Head [dGkO4CzR274].mp3 -> (Artist: 16 horsepower, Title: harm’s way)
+2026-03-31 10:09:09,956 | INFO | RENAMED: Horse Head [dGkO4CzR274].mp3 to 01-07-harm’s_way.mp3
+2026-03-31 10:09:09,959 | INFO | TAGGED: Neck On The New Blade [BDKBsnmH6vE].mp3 -> (Artist: 16 horsepower, Title: heel on the shovel)
+2026-03-31 10:09:09,960 | INFO | RENAMED: Neck On The New Blade [BDKBsnmH6vE].mp3 to 01-09-heel_on_the_shovel.mp3
+2026-03-31 10:09:09,963 | INFO | TAGGED: Ruthie Lingle [wS-LgXok5nE].mp3 -> (Artist: 16 horsepower, Title: prison shoe romp)
+2026-03-31 10:09:09,963 | INFO | RENAMED: Ruthie Lingle [wS-LgXok5nE].mp3 to 01-12-prison_shoe_romp.mp3
+2026-03-31 10:09:09,966 | INFO | TAGGED: Harm's Way [CSW2Dnw2bbs].mp3 -> (Artist: 16 horsepower, Title: scrawled in sap)
+2026-03-31 10:09:09,966 | INFO | RENAMED: Harm's Way [CSW2Dnw2bbs].mp3 to 01-04-scrawled_in_sap.mp3
+2026-03-31 10:09:09,969 | INFO | TAGGED: Heel On The Shovel [4YInA6Gk87A].mp3 -> (Artist: 16 horsepower, Title: ruthie lingle)
+2026-03-31 10:09:09,970 | INFO | RENAMED: Heel On The Shovel [4YInA6Gk87A].mp3 to 01-06-ruthie_lingle.mp3
+2026-03-31 10:09:09,972 | INFO | TAGGED: Prison Shoe Romp [lHGrwr-Dcrw].mp3 -> (Artist: 16 horsepower, Title: american wheeze)
+2026-03-31 10:09:09,973 | INFO | RENAMED: Prison Shoe Romp [lHGrwr-Dcrw].mp3 to 01-10-american_wheeze.mp3
+2026-03-31 10:09:09,975 | INFO | TAGGED: Haw [T_izump-9Rg].mp3 -> (Artist: 16 horsepower, Title: horse head)
+2026-03-31 10:09:09,976 | INFO | RENAMED: Haw [T_izump-9Rg].mp3 to 01-05-horse_head.mp3
+2026-03-31 10:09:09,979 | INFO | TAGGED: American Wheeze [t81tt8_VAr0].mp3 -> (Artist: 16 horsepower, Title: i seen what i saw)
+2026-03-31 10:09:09,979 | INFO | RENAMED: American Wheeze [t81tt8_VAr0].mp3 to 01-01-i_seen_what_i_saw.mp3
+2026-03-31 10:09:09,982 | INFO | TAGGED: Red Neck Reel [Sme21NY9KT8].mp3 -> (Artist: 16 horsepower, Title: red neck reel)
+2026-03-31 10:09:09,983 | INFO | RENAMED: Red Neck Reel [Sme21NY9KT8].mp3 to 01-11-red_neck_reel.mp3
+2026-03-31 10:09:09,985 | INFO | TAGGED: Scrawled In Sap [e7DPUmoF7Ms].mp3 -> (Artist: 16 horsepower, Title: neck on the new blade)
+2026-03-31 10:09:09,986 | INFO | RENAMED: Scrawled In Sap [e7DPUmoF7Ms].mp3 to 01-13-neck_on_the_new_blade.mp3
+2026-03-31 10:09:09,989 | INFO | TAGGED: Black Bush [Rv6SUwI2XUI].mp3 -> (Artist: 16 horsepower, Title: black soul choir)
+2026-03-31 10:09:09,990 | INFO | RENAMED: Black Bush [Rv6SUwI2XUI].mp3 to 01-02-black_soul_choir.mp3
+
+--- FINAL STATISTICS ---
+Total Files Scanned:    14
+Tags Modified & Saved:  14
+Files Renamed:          14
+
+Specific Tag Actions:
+- Lowercase applied:    14
+- Feat. moved to title: 0
+- Album Artist filled:  0
+- Sort tags removed:    0
+
+Skipped / Errors:
+- Naming Collisions:    0
+- Processing Errors:    0
+------------------------
+Log file: music_audit_20260331_100909.log
