@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v \"\\\\.py$\")",
+      "Bash(python3 -c \"import py_compile; py_compile.compile\\('/Users/lucarv/Documents/Repos/attic-scripts/musiclib.py', doraise=True\\) ; print\\('OK'\\)\")",
+      "Bash(python3 -c \"import py_compile; py_compile.compile\\('/Users/lucarv/Documents/Repos/attic-scripts/musiclib.py', doraise=True\\); print\\('OK'\\)\")",
+      "Bash(python3 -c \"import py_compile; py_compile.compile\\('/Users/lucarv/Documents/Repos/attic-scripts/musiclib.py', doraise=True\\)\")"
+    ]
+  }
+}
