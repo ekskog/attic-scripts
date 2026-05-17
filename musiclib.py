@@ -798,7 +798,7 @@ def nuclear_clean_and_rename(path: Path):
                           re.IGNORECASE)
     stats    = {"cleaned": 0, "renamed": 0, "errors": 0}
     with open(log_path, "w") as log:
-        for fp in files:
+        for i, fp in enumerate(files, 1):
             if _exit_flag:
                 break
             try:
@@ -846,6 +846,9 @@ def nuclear_clean_and_rename(path: Path):
             except Exception as e:
                 log.write(f"ERROR {fp}: {e}\n")
                 stats["errors"] += 1
+            if i % 50 == 0 or i == len(files):
+                print(f"\r  {i}/{len(files)}  cleaned: {stats['cleaned']}  renamed: {stats['renamed']}  errors: {stats['errors']}",
+                      end="", flush=True)
     print(f"\n  Cleaned: {stats['cleaned']}  Renamed: {stats['renamed']}  Errors: {stats['errors']}")
     print(f"  Log: {log_path}")
 
