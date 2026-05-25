@@ -117,7 +117,8 @@ def _mb_init():
 def _signal_handler(sig, frame):
     global _exit_flag
     _exit_flag = True
-    print("\n\n  [!] Interrupt — finishing current file and stopping…")
+    print("\n  [!] Interrupted.")
+    sys.exit(0)
 
 signal.signal(signal.SIGINT, _signal_handler)
 
@@ -585,7 +586,7 @@ def run_section_cover_art():
      folder cover.jpg → embed  |  APIC → extract+embed  |  Deezer → fetch+embed
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         if choice == "1":
             path = prompt_path("Library path")
@@ -990,7 +991,7 @@ def run_section_tag_cleanup():
   8  Tag TIT2/TPE1 from filename
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         path = prompt_path("Library path")
         if not path:
@@ -1457,7 +1458,7 @@ def run_section_tag_enrich():
   5  Fetch and embed lyrics        (LRCLIB → USLT + .lrc sidecar)
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         path = prompt_path("Library path")
         if not path:
@@ -1567,7 +1568,7 @@ def run_section_audit():
   3  Compare tags: two folders
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         if choice == "1":
             path = prompt_path("Library path")
@@ -1643,7 +1644,7 @@ def run_section_convert():
   3  M4A / MP4  →  MP3 320kbps
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         path = prompt_path("Library path")
         if not path:
@@ -1661,9 +1662,8 @@ def run_section_convert():
 
 def split_mp3_by_cue(cue_file: Path):
     """Split a long MP3 into tracks based on a timestamp/cue file."""
-    if not check_dep("pydub", "pip install pydub"):
+    if not check_ffmpeg():
         return
-    from pydub import AudioSegment
 
     re_a = re.compile(r"^(.+?)\s+(?:(\d+):)?(\d{1,2}):(\d{2})$")
     re_b = re.compile(r"^(?:(\d+):)?(\d{1,2}):(\d{2})\s+(.+)$")
@@ -1677,7 +1677,7 @@ def split_mp3_by_cue(cue_file: Path):
             ma = re_a.match(line)
             mb = re_b.match(line)
             if ma:
-                name = ma.group(1).strip()
+                name = re.sub(r"^\d+\.\s*", "", ma.group(1).strip())
                 h  = int(ma.group(2)) if ma.group(2) else 0
                 mi, s = int(ma.group(3)), int(ma.group(4))
             elif mb:
@@ -1687,7 +1687,7 @@ def split_mp3_by_cue(cue_file: Path):
             else:
                 print(f"  [!] Unrecognized line: {line}")
                 continue
-            songs.append((name, (h*3600 + mi*60 + s)*1000))
+            songs.append((name, h*3600 + mi*60 + s))
         return songs
 
     songs = parse_cue(cue_file)
@@ -1696,12 +1696,11 @@ def split_mp3_by_cue(cue_file: Path):
         return
 
     print(f"\n  {'#':<3} {'Track':<40} Start")
-    for i, (name, ms) in enumerate(songs, 1):
-        s = ms // 1000
-        ts = f"{s//3600:02d}:{(s%3600)//60:02d}:{s%60:02d}"
+    for i, (name, sec) in enumerate(songs, 1):
+        ts = f"{sec//3600:02d}:{(sec%3600)//60:02d}:{sec%60:02d}"
         print(f"  {i:02d}. {name[:39]:<40} {ts}")
 
-    cue_dir       = cue_file.parent
+    cue_dir        = cue_file.parent
     mp3_candidates = list(cue_dir.glob("*.mp3"))
     if not mp3_candidates:
         setup_readline()
@@ -1728,20 +1727,26 @@ def split_mp3_by_cue(cue_file: Path):
         print("  MP3 file not found.")
         return
 
-    print(f"\n  Loading {mp3_path.name}…")
-    audio = AudioSegment.from_mp3(mp3_path)
-    total = len(audio)
-
-    for i, (name, start_ms) in enumerate(songs):
-        end_ms   = songs[i+1][1] if i < len(songs)-1 else total
-        seg      = audio[start_ms:end_ms]
-        safe     = re.sub(r"[^\w\s-]","",name)
-        safe     = re.sub(r"\s+","_",safe).lower()
+    print()
+    ok = fail = 0
+    for i, (name, start_sec) in enumerate(songs):
+        safe     = re.sub(r"[^\w\s-]", "", name)
+        safe     = re.sub(r"\s+", "_", safe).lower()
         out_path = cue_dir / f"{i+1:02d}-{safe}.mp3"
-        print(f"  [{i+1}/{len(songs)}] {out_path.name}…")
-        seg.export(str(out_path), format="mp3")
+        cmd = ["ffmpeg", "-y", "-i", str(mp3_path), "-ss", str(start_sec)]
+        if i < len(songs) - 1:
+            cmd += ["-to", str(songs[i+1][1])]
+        cmd += ["-c", "copy", str(out_path)]
+        print(f"  [{i+1}/{len(songs)}] {out_path.name}…", end=" ", flush=True)
+        result = subprocess.run(cmd, capture_output=True)
+        if result.returncode == 0:
+            print("OK")
+            ok += 1
+        else:
+            print("FAILED")
+            fail += 1
 
-    print(f"\n  Done! {len(songs)} tracks exported to {cue_dir}")
+    print(f"\n  Done! {ok} tracks exported to {cue_dir}" + (f"  ({fail} failed)" if fail else ""))
     try:
         ans = input("  Delete original MP3 + cue file? [y/N]: ").strip().lower()
     except EOFError:
@@ -1785,11 +1790,11 @@ def run_section_utilities():
         print("""
   F. Utilities
   ─────────────────────────────────────────────────────────
-  1  Split MP3 by cue / timestamp file  (requires pydub)
+  1  Split MP3 by cue / timestamp file  (requires ffmpeg)
   2  Purge macOS metadata garbage  (.DS_Store, ._, .AppleDouble…)
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         if choice == "1":
             setup_readline()
@@ -1826,7 +1831,7 @@ def run_section_config():
   5  Show full config
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         try:
             if choice == "1":
@@ -2017,6 +2022,79 @@ def _check_one_album(album: Path, log) -> bool:
     return changed
 
 
+def _cross_album_check(albums: list, log) -> bool:
+    """
+    Check TPE1 and TPE2 consistency across all albums in the list.
+    Prompts user to pick a canonical value if multiple are found.
+    Returns True if any tags were changed.
+    """
+    if len(albums) < 2:
+        return False
+
+    def _read_tag(album, tag_id):
+        mp3s = _audio_files(album, ".mp3")
+        if not mp3s:
+            return ""
+        try:
+            v = ID3(mp3s[0]).get(tag_id)
+            return str(v.text[0]).strip() if (v and hasattr(v, "text") and v.text) else ""
+        except Exception:
+            return ""
+
+    def _apply_tag(albums, tag_id, frame_cls, value, log):
+        for album in albums:
+            for mp3 in _audio_files(album, ".mp3"):
+                try:
+                    audio = ID3(mp3)
+                    audio.add(frame_cls(encoding=3, text=value))
+                    audio.save(v2_version=3)
+                except Exception as e:
+                    log.write(f"ERR_{tag_id} {mp3}: {e}\n")
+        log.write(f"CROSS_ALBUM {tag_id}='{value}'\n")
+
+    def _prompt_cross(label, vals_by_album):
+        distinct = list(dict.fromkeys(v for v in vals_by_album.values() if v))
+        if len(distinct) <= 1:
+            return None
+        counts = Counter(vals_by_album.values())
+        print(f"\n  [!] {label} differs across albums:")
+        for i, v in enumerate(distinct, 1):
+            print(f"      {i}. '{v}'  ({counts[v]} album{'s' if counts[v] != 1 else ''})")
+        print(f"      c. Enter custom value    s. Skip")
+        try:
+            sel = input("  Choice: ").strip().lower()
+        except EOFError:
+            return None
+        if sel == "s":
+            return None
+        if sel == "c":
+            try:
+                return input("  Value: ").strip() or None
+            except EOFError:
+                return None
+        if sel.isdigit() and 1 <= int(sel) <= len(distinct):
+            return distinct[int(sel) - 1]
+        return None
+
+    changed = False
+
+    tpe2_vals = {a: _read_tag(a, "TPE2") for a in albums}
+    chosen = _prompt_cross("TPE2 (album artist)", tpe2_vals)
+    if chosen:
+        _apply_tag(albums, "TPE2", TPE2, chosen, log)
+        print(f"  TPE2 set to '{chosen}' across {len(albums)} albums")
+        changed = True
+
+    tpe1_vals = {a: _read_tag(a, "TPE1") for a in albums}
+    chosen = _prompt_cross("TPE1 (artist)", tpe1_vals)
+    if chosen:
+        _apply_tag(albums, "TPE1", TPE1, chosen, log)
+        print(f"  TPE1 set to '{chosen}' across {len(albums)} albums")
+        changed = True
+
+    return changed
+
+
 def run_workflow_tags(path: Path, level: str = None):
     """Interactive tag consistency check for every album, then golden-set sanitize."""
     albums = list(iter_albums(path, level))
@@ -2033,6 +2111,19 @@ def run_workflow_tags(path: Path, level: str = None):
             print(f"\n  [{i}/{len(albums)}] {album.parent.name}/{album.name}")
             if _check_one_album(album, log):
                 updated += 1
+        if not _exit_flag:
+            if level in ("artist", "album"):
+                albums = list(iter_albums(path, level))
+                if _cross_album_check(albums, log):
+                    updated += 1
+            else:
+                for artist in iter_artists(path, level):
+                    if _exit_flag:
+                        break
+                    artist_albums = list(iter_albums(artist, "artist"))
+                    if len(artist_albums) >= 2:
+                        if _cross_album_check(artist_albums, log):
+                            updated += 1
     print(f"\n  Consistency pass: {updated}/{len(albums)} albums updated  |  Log: {log_path}")
     print("\n  Running golden-set sanitize…")
     sanitize_to_golden_set(path, auto=True, level=level)
@@ -2059,7 +2150,7 @@ def run_section_workflows():
   4  Full onboarding                   (1 → 2 → 3)
   0  Back""")
         choice = input("\n  Choice: ").strip()
-        if choice == "0":
+        if choice in ("0", "q"):
             return
         path = prompt_path("Library path")
         if not path:
